@@ -1,4 +1,4 @@
-module install
+module install;
 
 import std.process : execute;
 import std.stdio : writeln;
@@ -8,7 +8,8 @@ enum InstallError {
 	Fine,
 	DockerVersionDied,
 	DockerRun,
-	DockerRunTest
+	DockerRunTest,
+	DmdNotInstalled
 }
 
 
@@ -26,6 +27,12 @@ InstallError install() {
 	} else if (dockerEcho.output != "test\n") {
 		writeln(dockerVersion.output);
 		return InstallError.DockerRunTest;
+	}
+
+	auto dmdTest = execute(["rdmd", "test.d"]);
+	if (dmdTest.status != 0) {
+		writeln(dmdTest.output);
+		return InstallError.DmdNotInstalled;
 	}
 
 	return InstallError.Fine;
